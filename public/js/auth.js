@@ -3,8 +3,24 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // If already logged in and visiting login/register, redirect to home
-  if (isLoggedIn() && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+  // If already logged in on login page, display helpful switch banner instead of blocking
+  if (isLoggedIn() && window.location.pathname.includes('login.html')) {
+    const user = getUser();
+    const wrapper = document.querySelector('.auth-wrapper');
+    if (wrapper && user) {
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:var(--primary-light); border:1px solid #bfdbfe; border-radius:8px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.88rem; display:flex; justify-content:space-between; align-items:center;';
+      banner.innerHTML = `
+        <div>
+          Signed in: <strong>${escapeHtml(user.name)}</strong> (${user.role.toUpperCase()})
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary" onclick="clearAuth(); window.location.reload();">
+          Logout
+        </button>
+      `;
+      wrapper.insertBefore(banner, wrapper.children[1]);
+    }
+  } else if (isLoggedIn() && window.location.pathname.includes('register.html')) {
     window.location.href = '/index.html';
     return;
   }

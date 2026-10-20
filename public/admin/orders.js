@@ -3,11 +3,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!isLoggedIn() || !isAdmin()) {
-    showToast('Admin privileges required.', 'danger');
-    setTimeout(() => { window.location.href = '/login.html'; }, 1000);
-    return;
-  }
+  const hasAccess = await ensureAdminAccess();
+  if (!hasAccess) return;
 
   await loadAdminOrders();
   setupOrderFilters();

@@ -247,7 +247,142 @@ function updateNavAuth() {
   updateCartBadge();
 }
 
-// Auto init navbar on DOMContentLoaded
+/**
+ * Synchronize current user with server on page load
+ */
+async function syncCurrentUser() {
+  if (getToken()) {
+    try {
+      const res = await apiFetch('/auth/me');
+      if (res && res.user) {
+        setUser(res.user);
+        updateNavAuth();
+      }
+    } catch (e) {
+      // Ignored if public page
+    }
+  }
+}
+
+/**
+ * Robust Admin Gatekeeper: Checks token and server-side role
+ */
+async function ensureAdminAccess() {
+  const token = getToken();
+  if (!token) {
+    showToast('Please sign in with Administrator credentials.', 'warning');
+    setTimeout(() => {
+      window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+    }, 800);
+    return false;
+  }
+
+  try {
+    const res = await apiFetch('/auth/me');
+    if (res && res.user) {
+      setUser(res.user);
+      updateNavAuth();
+
+      if (res.user.role === 'admin') {
+        return true;
+      }
+
+      // If user is logged in but role is customer, display clear resolution modal
+      renderAdminAccessNotice(res.user);
+      return false;
+    }
+  } catch (err) {
+    clearAuth();
+    window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+    return false;
+  }
+
+  return false;
+}
+
+/**
+ * Renders user-friendly prompt if user has customer role instead of admin
+ */
+function renderAdminAccessNotice(user) {
+  const main = document.querySelector('main.main-content');
+  if (!main) return;
+
+  main.innerHTML = `
+    <div class="container">
+      <div style="max-width:560px; margin:3rem auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius-lg); padding:2.5rem; text-align:center; box-shadow:var(--shadow-xl);">
+        <div style="font-size:3.5rem; margin-bottom:1rem;">🛡️</div>
+        <h2 style="font-size:1.6rem; font-weight:800; color:var(--secondary); margin-bottom:0.75rem;">
+          Admin Privileges Required
+        </h2>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem; line-height:1.6;">
+          You are currently signed in as <strong>${escapeHtml(user.name)}</strong> (<code style="background:var(--bg-subtle); padding:2px 6px; border-radius:4px;">${escapeHtml(user.email)}</code>) with <strong>${user.role.toUpperCase()}</strong> permissions.
+        </p>
+
+        <div style="background:var(--bg-subtle); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem; text-align:left; font-size:0.9rem;">
+          <div style="font-weight:700; color:var(--secondary); margin-bottom:0.5rem;">How would you like to proceed?</div>
+          <div style="color:var(--text-muted); margin-bottom:0.75rem;">Choose an option below to enter the Admin Portal:</div>
+
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <button type="button" class="btn btn-primary btn-block" onclick="makeMeAdmin()">
+              ⚡ Promote My Account (${escapeHtml(user.email)}) to Admin
+            </button>
+            <button type="button" class="btn btn-secondary btn-block" onclick="loginAsDemoAdmin()">
+              👑 Switch to Default Admin (admin@shopeasy.com)
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <a href="/index.html" class="btn btn-outline btn-block">
+            ← Return to Storefront Catalog
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * 1-Click Promote current user to admin
+ */
+async function makeMeAdmin() {
+  try {
+    showToast('Promoting account to Admin...', 'info');
+    const res = await apiFetch('/auth/make-admin', { method: 'POST' });
+    if (res.token) setToken(res.token);
+    if (res.user) setUser(res.user);
+    showToast('Granted Admin privileges! Loading portal...', 'success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 600);
+  } catch (err) {
+    showToast(err.message || 'Failed to promote account.', 'danger');
+  }
+}
+
+/**
+ * 1-Click Switch to Default Admin Account
+ */
+async function loginAsDemoAdmin() {
+  try {
+    showToast('Logging in as Admin...', 'info');
+    const res = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: { email: 'admin@shopeasy.com', password: 'admin123' },
+    });
+    setToken(res.token);
+    setUser(res.user);
+    showToast('Logged in as Admin Manager!', 'success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 600);
+  } catch (err) {
+    showToast(err.message || 'Login failed.', 'danger');
+  }
+}
+
+// Auto init navbar and sync user on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
   updateNavAuth();
+  syncCurrentUser();
 });

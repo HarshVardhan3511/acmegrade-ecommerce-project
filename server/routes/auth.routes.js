@@ -11,5 +11,6 @@ router.post('/login', validateLogin, authController.login);
 // Authenticated routes
 router.get('/me', authenticate, authController.getMe);
 router.put('/profile', authenticate, authController.updateProfile);
+router.post('/make-admin', authenticate, authController.makeAdmin);
 
 module.exports = router;

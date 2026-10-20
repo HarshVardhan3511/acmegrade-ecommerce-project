@@ -167,9 +167,45 @@ async function updateProfile(req, res) {
   }
 }
 
+/**
+ * Promote currently logged in user to admin (Convenience for testing & administration)
+ * POST /api/auth/make-admin
+ */
+async function makeAdmin(req, res) {
+  try {
+    const userId = req.user.id;
+    await run('UPDATE users SET role = "admin" WHERE id = ?', [userId]);
+
+    const updatedUser = await get(
+      'SELECT id, name, email, role, phone, address, created_at FROM users WHERE id = ?',
+      [userId]
+    );
+
+    const token = jwt.sign(
+      { id: updatedUser.id, email: updatedUser.email, role: updatedUser.role },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Account "${updatedUser.name}" has been promoted to Administrator.`,
+      token,
+      user: updatedUser,
+    });
+  } catch (err) {
+    console.error('Make admin error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to grant admin privileges.',
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
+  makeAdmin,
 };
