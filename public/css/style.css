@@ -166,7 +166,7 @@ main.main-content {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
   list-style: none;
 }
 
@@ -183,6 +183,59 @@ main.main-content {
 .nav-item a:hover {
   background-color: var(--bg-subtle);
   color: var(--primary);
+}
+
+/* Dedicated Navigation Auth Buttons (Sign In / Sign Up) */
+.nav-auth-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nav-auth-group a {
+  text-decoration: none !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.48rem 1.05rem !important;
+  border-radius: var(--radius-full) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+/* Sign In Button */
+.nav-btn-login {
+  color: var(--text-main) !important;
+  background-color: #ffffff !important;
+  border: 1.5px solid var(--border) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.nav-btn-login:hover {
+  background-color: var(--bg-subtle) !important;
+  border-color: #cbd5e1 !important;
+  color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Sign Up Button */
+.nav-btn-signup {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border: 1.5px solid transparent !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+.nav-btn-signup:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-1px) !important;
 }
 
 .cart-link {
@@ -1208,5 +1261,12 @@ main.main-content {
   }
   .footer-grid {
     grid-template-columns: 1fr;
+  }
+  .nav-auth-group {
+    gap: 0.4rem;
+  }
+  .nav-auth-group a {
+    padding: 0.38rem 0.75rem !important;
+    font-size: 0.8rem !important;
   }
 }

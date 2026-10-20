@@ -239,8 +239,10 @@ function updateNavAuth() {
     }
   } else {
     navAuthContainer.innerHTML = `
-      <a href="/login.html" class="btn btn-sm btn-secondary">Login</a>
-      <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
+      <div class="nav-auth-group">
+        <a href="/login.html" class="nav-btn-login">Sign In</a>
+        <a href="/register.html" class="nav-btn-signup">Sign Up</a>
+      </div>
     `;
   }
 
