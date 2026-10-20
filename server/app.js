@@ -44,15 +44,15 @@ app.get('/api/health', (req, res) => {
 });
 
 // 404 handler for unmatched API routes
-app.all('/api/*', (req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({
     success: false,
     message: `API endpoint ${req.method} ${req.originalUrl} not found.`,
   });
 });
 
-// Fallback to index.html for root or unknown static routes (clean routing)
-app.get('*', (req, res) => {
+// Fallback to index.html for unknown web page routes
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 

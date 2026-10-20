@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Orders – ShopEasy Admin</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📑</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/admin/dashboard.html" class="brand-logo" style="color:var(--secondary);">
+          ⚙️ ShopEasy <span style="font-size:0.9rem; color:var(--primary); font-weight:700;">Admin</span>
+        </a>
+
+        <ul class="nav-links">
+          <li class="nav-item"><a href="/index.html" target="_blank">🌐 View Store</a></li>
+          <li class="nav-item"><a href="/admin/dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a href="/admin/products.html">Products</a></li>
+          <li class="nav-item"><a href="/admin/categories.html">Categories</a></li>
+          <li class="nav-item"><a href="/admin/orders.html" style="color:var(--primary); font-weight:700;">Orders</a></li>
+          <li class="nav-item" id="nav-auth-container"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h1 style="font-size:1.85rem; font-weight:800; color:var(--secondary);">Order Processing</h1>
+          <p style="color:var(--text-muted); font-size:0.92rem;">Review incoming customer orders and update delivery fulfillment status</p>
+        </div>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="filter-bar" style="margin-bottom:1.5rem;">
+        <div style="flex:1; max-width:360px;">
+          <input type="text" id="order-search" class="form-control" placeholder="Search by Order ID, Customer, Phone..." />
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Status:</label>
+          <select id="order-status-filter" class="form-control" style="min-width:160px;">
+            <option value="all">All Orders</option>
+            <option value="Placed">Placed</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Shipping Address</th>
+              <th>Amount</th>
+              <th>Status (Update)</th>
+              <th>Placed On</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-orders-table">
+            <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">Loading orders...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Order Details Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal-content" style="max-width:620px;">
+      <div class="modal-header">
+        <h3>Order Items & Delivery Details</h3>
+        <button type="button" class="modal-close-btn" onclick="closeOrderModal()">✕</button>
+      </div>
+      <div class="modal-body" id="order-modal-body">
+        <!-- Filled dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/admin/orders.js"></script>
+</body>
+</html>

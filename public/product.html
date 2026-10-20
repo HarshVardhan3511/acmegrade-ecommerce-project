@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details – ShopEasy</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          🛍️ Shop<span>Easy</span>
+        </a>
+
+        <div class="nav-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search products..." onkeypress="if(event.key==='Enter') window.location.href='/index.html?search=' + encodeURIComponent(this.value);" />
+        </div>
+
+        <ul class="nav-links">
+          <li class="nav-item">
+            <a href="/index.html">Catalog</a>
+          </li>
+          <li class="nav-item">
+            <a href="/cart.html" class="cart-link" id="cart-nav-link">
+              🛒 Cart
+              <span class="cart-badge" id="nav-cart-badge" style="display:none;">0</span>
+            </a>
+          </li>
+          <li class="nav-item" id="nav-auth-container"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Breadcrumbs -->
+      <div style="margin-bottom:1.5rem; font-size:0.88rem; color:var(--text-muted);">
+        <a href="/index.html">Home</a> &nbsp;/&nbsp; 
+        <span>Product Details</span>
+      </div>
+
+      <!-- Container filled by product-detail.js -->
+      <div id="product-detail-container">
+        <div style="text-align:center; padding:4rem;">
+          <p style="color:var(--text-muted);">Loading product details...</p>
+        </div>
+      </div>
+
+      <!-- Customer Reviews Section (Bonus) -->
+      <section style="margin-top:3rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:1.35rem; font-weight:800; margin-bottom:1.5rem;">Customer Reviews & Ratings</h3>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2.5rem;">
+          <!-- Reviews List -->
+          <div>
+            <h4 style="font-size:1.05rem; margin-bottom:1rem;">Recent Reviews</h4>
+            <div id="reviews-list">
+              <!-- Populated by product-detail.js -->
+            </div>
+          </div>
+
+          <!-- Add Review Form -->
+          <div style="background:var(--bg-subtle); padding:1.5rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+            <h4 style="font-size:1.05rem; margin-bottom:0.75rem;">Write a Review</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Share your experience with this item.</p>
+
+            <form id="review-form">
+              <div class="form-group">
+                <label class="form-label" for="review-rating">Your Rating</label>
+                <select id="review-rating" class="form-control" required>
+                  <option value="5">★★★★★ (5 - Excellent)</option>
+                  <option value="4">★★★★☆ (4 - Good)</option>
+                  <option value="3">★★★☆☆ (3 - Average)</option>
+                  <option value="2">★★☆☆☆ (2 - Poor)</option>
+                  <option value="1">★☆☆☆☆ (1 - Terrible)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="review-comment">Comments</label>
+                <textarea id="review-comment" class="form-control" rows="3" placeholder="Tell us about the build quality, performance, or fit..." required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">Submit Review</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/product-detail.js"></script>
+</body>
+</html>

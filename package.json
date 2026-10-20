@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/app.js",
     "dev": "node --watch server/app.js",
-    "seed": "node server/seed.js"
+    "seed": "node server/seed.js",
+    "test": "node server/test_api.js"
   },
   "keywords": [
     "ecommerce",

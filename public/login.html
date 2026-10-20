@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – ShopEasy</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          🛍️ Shop<span>Easy</span>
+        </a>
+        <ul class="nav-links">
+          <li class="nav-item"><a href="/index.html">← Back to Store</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="auth-wrapper">
+        <div class="auth-header">
+          <h1>Welcome Back</h1>
+          <p>Sign in to your ShopEasy account</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="name@example.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <label class="form-label" for="password" style="margin-bottom:0;">Password</label>
+            </div>
+            <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:1rem;">
+            Sign In
+          </button>
+        </form>
+
+        <!-- Quick Demo Credentials for Viva / Evaluation -->
+        <div class="demo-credentials">
+          <strong>Demo Credentials:</strong>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.35rem;">
+            <span>👑 <strong>Admin:</strong> admin@shopeasy.com</span>
+            <button type="button" class="demo-fill-btn" id="fill-admin-btn">Use Admin</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.35rem;">
+            <span>👤 <strong>Customer:</strong> customer@shopeasy.com</span>
+            <button type="button" class="demo-fill-btn" id="fill-customer-btn">Use Customer</button>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:1.5rem; font-size:0.9rem; color:var(--text-muted);">
+          Don't have an account? <a href="/register.html" style="font-weight:700;">Create one now</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

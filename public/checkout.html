@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout – ShopEasy</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          🛍️ Shop<span>Easy</span>
+        </a>
+        <ul class="nav-links">
+          <li class="nav-item"><a href="/cart.html">← Back to Cart</a></li>
+          <li class="nav-item" id="nav-auth-container"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      <h1 style="font-size:1.85rem; font-weight:800; color:var(--secondary); margin-bottom:1.5rem;">
+        Secure Checkout
+      </h1>
+
+      <div class="cart-layout">
+        <!-- Shipping Address Form -->
+        <div class="cart-card">
+          <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+            1. Delivery Address
+          </h3>
+
+          <form id="checkout-form">
+            <div class="form-group">
+              <label class="form-label" for="shipping_name">Full Recipient Name *</label>
+              <input type="text" id="shipping_name" class="form-control" placeholder="John Doe" required minlength="2" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="shipping_phone">10-Digit Mobile Number *</label>
+              <input type="tel" id="shipping_phone" class="form-control" placeholder="9812345678" required pattern="[0-9+() -]{10,15}" />
+              <div class="form-text">Delivery executive will contact you on this number.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="shipping_address">Flat, House No., Building, Street *</label>
+              <textarea id="shipping_address" class="form-control" rows="3" placeholder="42 Palm Grove Avenue, Indiranagar" required minlength="5"></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+              <div class="form-group">
+                <label class="form-label" for="shipping_city">City *</label>
+                <input type="text" id="shipping_city" class="form-control" placeholder="Bangalore" required minlength="2" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="shipping_pincode">PIN Code *</label>
+                <input type="text" id="shipping_pincode" class="form-control" placeholder="560038" required pattern="[0-9]{5,6}" maxlength="6" />
+              </div>
+            </div>
+
+            <h3 style="font-size:1.2rem; font-weight:700; margin:1.5rem 0 1rem 0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+              2. Payment Method
+            </h3>
+
+            <!-- Payment mode selection -->
+            <div style="background:var(--bg-subtle); border:2px solid var(--primary); border-radius:var(--radius-md); padding:1.25rem; display:flex; align-items:center; gap:1rem;">
+              <input type="radio" id="payment_cod" name="payment_method" value="COD" checked style="width:20px; height:20px;" />
+              <label for="payment_cod" style="cursor:pointer; flex:1;">
+                <div style="font-weight:700; font-size:1rem; color:var(--secondary);">💵 Cash on Delivery (COD)</div>
+                <div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">Pay with cash or UPI upon product arrival at your doorstep.</div>
+              </label>
+              <span class="badge badge-success">Zero Fee</span>
+            </div>
+
+            <div style="margin-top:2rem;">
+              <button type="submit" class="btn btn-primary btn-block btn-lg" id="place-order-btn">
+                Place Order (Cash on Delivery) ➔
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Order Summary & Items Preview -->
+        <div>
+          <div class="cart-summary-card">
+            <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:1rem;">Items in Your Order</h3>
+            
+            <div id="checkout-items-preview" style="max-height:280px; overflow-y:auto; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
+              <!-- Populated by checkout.js -->
+            </div>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="checkout-subtotal">₹0.00</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Shipping Fee</span>
+              <span style="color:var(--success); font-weight:700;">FREE</span>
+            </div>
+
+            <div class="summary-row total">
+              <span>Total Payable</span>
+              <span id="checkout-grand-total">₹0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/checkout.js"></script>
+</body>
+</html>

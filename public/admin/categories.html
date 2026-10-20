@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Categories – ShopEasy Admin</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/admin/dashboard.html" class="brand-logo" style="color:var(--secondary);">
+          ⚙️ ShopEasy <span style="font-size:0.9rem; color:var(--primary); font-weight:700;">Admin</span>
+        </a>
+
+        <ul class="nav-links">
+          <li class="nav-item"><a href="/index.html" target="_blank">🌐 View Store</a></li>
+          <li class="nav-item"><a href="/admin/dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a href="/admin/products.html">Products</a></li>
+          <li class="nav-item"><a href="/admin/categories.html" style="color:var(--primary); font-weight:700;">Categories</a></li>
+          <li class="nav-item"><a href="/admin/orders.html">Orders</a></li>
+          <li class="nav-item" id="nav-auth-container"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h1 style="font-size:1.85rem; font-weight:800; color:var(--secondary);">Category Management</h1>
+          <p style="color:var(--text-muted); font-size:0.92rem;">Organize store products into clean, searchable categories</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="openAddCategory()">
+          ➕ Add Category
+        </button>
+      </div>
+
+      <!-- Categories Table -->
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Category Name</th>
+              <th>Description</th>
+              <th>Products Linked</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-categories-table">
+            <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:2rem;">Loading categories...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Add/Edit Category Modal -->
+  <div class="modal-overlay" id="cat-modal">
+    <div class="modal-content" style="max-width:480px;">
+      <div class="modal-header">
+        <h3 id="cat-modal-title">Add Category</h3>
+        <button type="button" class="modal-close-btn" onclick="closeCategoryModal()">✕</button>
+      </div>
+
+      <form id="category-form">
+        <div class="modal-body">
+          <input type="hidden" id="cat-id" />
+
+          <div class="form-group">
+            <label class="form-label" for="cat-name">Category Name *</label>
+            <input type="text" id="cat-name" class="form-control" placeholder="e.g. Smart Wearables" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cat-description">Description</label>
+            <textarea id="cat-description" class="form-control" rows="3" placeholder="Category overview and types of items included"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/admin/categories.js"></script>
+</body>
+</html>

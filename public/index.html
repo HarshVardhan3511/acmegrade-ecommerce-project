@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopEasy – Modern Online Shopping</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          🛍️ Shop<span>Easy</span>
+        </a>
+
+        <div class="nav-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search smartphones, fashion, home essentials..." />
+        </div>
+
+        <ul class="nav-links">
+          <li class="nav-item">
+            <a href="/index.html" style="color:var(--primary); font-weight:700;">Catalog</a>
+          </li>
+          <li class="nav-item">
+            <a href="/cart.html" class="cart-link" id="cart-nav-link">
+              🛒 Cart
+              <span class="cart-badge" id="nav-cart-badge" style="display:none;">0</span>
+            </a>
+          </li>
+          <li class="nav-item" id="nav-auth-container">
+            <!-- Dynamically populated by api.js -->
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Hero Banner -->
+      <section class="hero-banner">
+        <div class="hero-content">
+          <span class="hero-badge">✨ Great Deals & Fast Delivery</span>
+          <h1 class="hero-title">Discover Quality Products at Unbeatable Prices.</h1>
+          <p class="hero-subtitle">
+            Shop across Electronics, Fashion, Home Decor, Books, and Sports gear with full Cash on Delivery.
+          </p>
+          <a href="#catalog-section" class="btn btn-secondary btn-lg" style="font-weight:700; border-radius:var(--radius-full);">
+            Explore Catalog ↓
+          </a>
+        </div>
+      </section>
+
+      <!-- Catalog Section -->
+      <section id="catalog-section">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="category-pills" id="category-pills">
+            <!-- Populated via loadCategories() -->
+          </div>
+
+          <div class="sort-group">
+            <label for="sort-select">Sort By:</label>
+            <select id="sort-select" class="sort-select">
+              <option value="newest">Newest Arrivals</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="name_asc">Name: A to Z</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Results count display -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <h2 style="font-size:1.35rem; font-weight:800; color:var(--secondary);">Featured Products</h2>
+          <span id="results-count" style="font-size:0.88rem; color:var(--text-muted);">Loading products...</span>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="product-grid" id="products-grid">
+          <!-- Dynamically populated by products.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" style="display:none; text-align:center; padding:4rem 1rem;">
+          <div style="font-size:3.5rem; margin-bottom:1rem;">🔍</div>
+          <h3 style="font-size:1.35rem; font-weight:700; margin-bottom:0.5rem;">No matching products found</h3>
+          <p style="color:var(--text-muted); margin-bottom:1.5rem;">Try modifying your search or clearing category filters.</p>
+          <button class="btn btn-primary" onclick="document.getElementById('search-input').value=''; currentQuery.search=''; currentQuery.category=''; document.querySelector('.pill-btn[data-cat-id=\'\']')?.click();">
+            View All Products
+          </button>
+        </div>
+
+        <!-- Pagination Controls (PRD-4) -->
+        <div class="pagination" id="pagination-container">
+          <!-- Populated by renderPagination() -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h2>🛍️ ShopEasy</h2>
+          <p>Your simplified, reliable online store built with modern web technologies. Browse, cart, and place orders with ease.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Customer Care</h4>
+          <ul>
+            <li><a href="/orders.html">Track Order</a></li>
+            <li><a href="/cart.html">View Cart</a></li>
+            <li><a href="/profile.html">My Account</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Admin Portal</h4>
+          <ul>
+            <li><a href="/admin/dashboard.html">Admin Dashboard</a></li>
+            <li><a href="/admin/products.html">Product Management</a></li>
+            <li><a href="/admin/orders.html">Order Management</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Payment & Trust</h4>
+          <ul>
+            <li>💵 Cash on Delivery (COD)</li>
+            <li>🔒 Secure JWT Auth</li>
+            <li>⚡ Fast Delivery Guaranteed</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/products.js"></script>
+</body>
+</html>
