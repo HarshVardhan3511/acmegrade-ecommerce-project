@@ -52,7 +52,19 @@
             <span style="font-size:0.9rem; color:var(--text-muted);">Status:</span>
             <span class="badge badge-info" id="confirmed-status">Placed</span>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div id="confirmed-subtotal-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span style="font-size:0.9rem; color:var(--text-muted);">Subtotal:</span>
+            <span id="confirmed-subtotal">—</span>
+          </div>
+          <div id="confirmed-discount-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:0.5rem; color:var(--success);">
+            <span style="font-size:0.9rem;">Discount (<span id="confirmed-coupon"></span>):</span>
+            <span id="confirmed-discount">—</span>
+          </div>
+          <div id="confirmed-gst-row" style="display:none; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span style="font-size:0.9rem; color:var(--text-muted);">GST (18%):</span>
+            <span id="confirmed-gst">—</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.75rem; margin-top:0.5rem;">
             <span style="font-size:0.9rem; color:var(--text-muted);">Total Amount:</span>
             <span style="font-weight:800; font-size:1.2rem; color:var(--secondary);" id="confirmed-amount">...</span>
           </div>
@@ -60,6 +72,7 @@
 
         <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
           <a href="/orders.html" class="btn btn-primary btn-lg">View Order History</a>
+          <a id="invoice-link" href="#" target="_blank" class="btn btn-secondary btn-lg" style="display:none;">🧾 Download Invoice</a>
           <a href="/index.html" class="btn btn-secondary btn-lg">Continue Shopping</a>
         </div>
       </div>
@@ -92,6 +105,32 @@
         const order = res.order;
         document.getElementById('confirmed-status').textContent = order.status;
         document.getElementById('confirmed-amount').textContent = formatPrice(order.total_amount);
+
+        // Show GST breakdown if available
+        const subtotalRow = document.getElementById('confirmed-subtotal-row');
+        const discountRow = document.getElementById('confirmed-discount-row');
+        const gstRow = document.getElementById('confirmed-gst-row');
+
+        if (order.subtotal && subtotalRow) {
+          document.getElementById('confirmed-subtotal').textContent = formatPrice(order.subtotal);
+          subtotalRow.style.display = 'flex';
+        }
+        if (order.coupon_code && order.discount_amount > 0 && discountRow) {
+          document.getElementById('confirmed-coupon').textContent = order.coupon_code;
+          document.getElementById('confirmed-discount').textContent = `-${formatPrice(order.discount_amount)}`;
+          discountRow.style.display = 'flex';
+        }
+        if (order.gst_amount > 0 && gstRow) {
+          document.getElementById('confirmed-gst').textContent = formatPrice(order.gst_amount);
+          gstRow.style.display = 'flex';
+        }
+
+        // Show invoice link
+        const invoiceLink = document.getElementById('invoice-link');
+        if (invoiceLink) {
+          invoiceLink.href = `/api/orders/${orderId}/invoice`;
+          invoiceLink.style.display = 'inline-flex';
+        }
       } catch (err) {
         // Fallback display
         document.getElementById('confirmed-amount').textContent = 'Confirmed';

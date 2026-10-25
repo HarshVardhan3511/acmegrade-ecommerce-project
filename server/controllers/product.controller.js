@@ -16,6 +16,11 @@ async function getProducts(req, res) {
       includeInactive = false,
     } = req.query;
 
+    const showInactive = includeInactive === true || includeInactive === 'true';
+    if (showInactive && req.user?.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access is required to view inactive products.' });
+    }
+
     const pageNum = Math.max(1, parseInt(page, 10) || 1);
     const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 8));
     const offset = (pageNum - 1) * limitNum;
@@ -24,7 +29,7 @@ async function getProducts(req, res) {
     const params = [];
 
     // Filter active products unless admin specifically requests all
-    if (!includeInactive) {
+    if (!showInactive) {
       conditions.push('p.is_active = 1');
     }
 
@@ -165,6 +170,10 @@ async function getProductById(req, res) {
         success: false,
         message: 'Product not found.',
       });
+    }
+
+    if (product.is_active !== 1 && req.user?.role !== 'admin') {
+      return res.status(404).json({ success: false, message: 'Product not found.' });
     }
 
     // Fetch recent reviews for this product

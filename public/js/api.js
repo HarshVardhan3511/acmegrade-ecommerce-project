@@ -200,6 +200,7 @@ function updateNavAuth() {
             <a href="/admin/orders.html">📑 Manage Orders</a>
             <div class="dropdown-divider"></div>
           ` : ''}
+          <a href="/wishlist.html">♥ My Wishlist</a>
           <a href="/orders.html">🛍️ My Orders</a>
           <a href="/profile.html">⚙️ Profile Settings</a>
           <div class="dropdown-divider"></div>
@@ -231,6 +232,7 @@ function updateNavAuth() {
         // If on admin or protected page, redirect to index
         if (window.location.pathname.includes('/admin/') || 
             window.location.pathname.includes('/orders.html') || 
+            window.location.pathname.includes('/wishlist.html') ||
             window.location.pathname.includes('/checkout.html') ||
             window.location.pathname.includes('/profile.html')) {
           setTimeout(() => { window.location.href = '/index.html'; }, 500);

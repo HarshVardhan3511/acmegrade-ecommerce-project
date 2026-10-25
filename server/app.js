@@ -4,6 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { initDatabase } = require('./db');
+const upload = require('./middleware/upload');
 
 // Route imports
 const authRoutes = require('./routes/auth.routes');
@@ -13,6 +14,7 @@ const cartRoutes = require('./routes/cart.routes');
 const orderRoutes = require('./routes/order.routes');
 const adminRoutes = require('./routes/admin.routes');
 const wishlistRoutes = require('./routes/wishlist.routes');
+const couponRoutes = require('./routes/coupon.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static frontend files from 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
+// Product uploads can live on a mounted persistent volume in cloud deployments.
+app.use('/uploads', express.static(upload.uploadDir, { maxAge: '30d', immutable: true }));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -33,6 +37,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

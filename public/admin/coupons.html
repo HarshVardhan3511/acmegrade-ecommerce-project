@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Coupons – ShopEasy Admin</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/admin/dashboard.html" class="brand-logo" style="color:var(--secondary);">
+          ⚙️ ShopEasy <span style="font-size:0.9rem; color:var(--primary); font-weight:700;">Admin</span>
+        </a>
+
+        <ul class="nav-links">
+          <li class="nav-item"><a href="/index.html" target="_blank">🌐 View Store</a></li>
+          <li class="nav-item"><a href="/admin/dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a href="/admin/products.html">Products</a></li>
+          <li class="nav-item"><a href="/admin/categories.html">Categories</a></li>
+          <li class="nav-item"><a href="/admin/orders.html">Orders</a></li>
+          <li class="nav-item"><a href="/admin/coupons.html" style="color:var(--primary); font-weight:700;">Coupons</a></li>
+          <li class="nav-item" id="nav-auth-container"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h1 style="font-size:1.85rem; font-weight:800; color:var(--secondary);">Coupon Management</h1>
+          <p style="color:var(--text-muted); font-size:0.92rem;">Create and manage discount coupons for your customers</p>
+        </div>
+        <button class="btn btn-primary" onclick="toggleCreateForm()">+ Create Coupon</button>
+      </div>
+
+      <!-- Create Coupon Form -->
+      <div id="create-coupon-form" class="cart-card" style="display:none; margin-bottom:1.5rem;">
+        <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+          🏷️ Create New Coupon
+        </h3>
+        <form id="coupon-form" onsubmit="handleCreateCoupon(event)">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+            <div class="form-group">
+              <label class="form-label">Coupon Code *</label>
+              <input type="text" id="coupon-code" class="form-control" placeholder="e.g. SAVE20" required style="text-transform:uppercase;" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <select id="coupon-type" class="form-control" required onchange="updateDiscountLabel()">
+                <option value="percentage">Percentage (%)</option>
+                <option value="flat">Flat Amount (₹)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="discount-value-label">Discount Value (%) *</label>
+              <input type="number" id="coupon-value" class="form-control" placeholder="10" required min="0.01" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Min Order Amount (₹)</label>
+              <input type="number" id="coupon-min" class="form-control" placeholder="0" min="0" step="0.01" value="0" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Uses (leave blank = unlimited)</label>
+              <input type="number" id="coupon-max-uses" class="form-control" placeholder="Unlimited" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Discount Cap (₹, for % type)</label>
+              <input type="number" id="coupon-max-discount" class="form-control" placeholder="Optional" min="0" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expiry Date (optional)</label>
+              <input type="datetime-local" id="coupon-expires" class="form-control" />
+            </div>
+          </div>
+          <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+            <button type="submit" class="btn btn-primary" id="create-coupon-btn">Create Coupon</button>
+            <button type="button" class="btn btn-secondary" onclick="toggleCreateForm()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Coupons Table -->
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Type</th>
+              <th>Discount</th>
+              <th>Min Order</th>
+              <th>Uses</th>
+              <th>Status</th>
+              <th>Expires</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="coupons-table">
+            <tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">Loading coupons...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/admin/coupons.js"></script>
+</body>
+</html>

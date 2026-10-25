@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS cart_items (
 CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    subtotal REAL NOT NULL DEFAULT 0 CHECK(subtotal >= 0),
+    discount_amount REAL NOT NULL DEFAULT 0 CHECK(discount_amount >= 0),
+    coupon_code TEXT DEFAULT NULL,
     total_amount REAL NOT NULL CHECK(total_amount >= 0),
     status TEXT DEFAULT 'Placed' CHECK(status IN ('Placed', 'Shipped', 'Delivered', 'Cancelled')),
     shipping_name TEXT NOT NULL,
@@ -87,9 +90,36 @@ CREATE TABLE IF NOT EXISTS reviews (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 9. Coupons Table
+CREATE TABLE IF NOT EXISTS coupons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT UNIQUE NOT NULL COLLATE NOCASE,
+    discount_type TEXT NOT NULL DEFAULT 'percentage' CHECK(discount_type IN ('percentage', 'flat')),
+    discount_value REAL NOT NULL CHECK(discount_value > 0),
+    min_order_amount REAL NOT NULL DEFAULT 0,
+    max_uses INTEGER DEFAULT NULL,
+    used_count INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0, 1)),
+    expires_at DATETIME DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 10. Notifications Table (simulated email/SMS log)
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+    type TEXT NOT NULL CHECK(type IN ('email', 'sms')),
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Performance Indexes
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
 CREATE INDEX IF NOT EXISTS idx_cart_user ON cart_items(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_order ON notifications(order_id);

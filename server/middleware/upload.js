@@ -2,7 +2,9 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const uploadDir = path.resolve(__dirname, '../../public/uploads');
+const uploadDir = path.resolve(
+  process.env.UPLOAD_DIR || path.join(__dirname, '../../public/uploads')
+);
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -26,7 +28,9 @@ const fileFilter = (req, file, cb) => {
   if (allowedTypes.test(ext) && allowedTypes.test(mime)) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files (JPEG, PNG, WEBP, GIF) are allowed.'));
+    const error = new Error('Only image files (JPEG, PNG, WEBP, GIF) are allowed.');
+    error.statusCode = 400;
+    cb(error);
   }
 };
 
@@ -37,3 +41,4 @@ const upload = multer({
 });
 
 module.exports = upload;
+module.exports.uploadDir = uploadDir;

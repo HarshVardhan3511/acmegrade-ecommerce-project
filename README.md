@@ -10,6 +10,7 @@ A complete, working full-stack e-commerce web application built using **Node.js*
 
 - **Customers** can browse products with search, category filtering, price sorting, pagination, manage their shopping cart, checkout using Cash on Delivery (COD), view past orders, and cancel orders while in "Placed" status.
 - **Store Managers (Admins)** have access to a secured administrative portal to track real-time revenue and sales stats, manage products (CRUD + image upload + low-stock warnings), manage categories, and update order fulfillment statuses.
+- **Bonus features** include coupons and discounts, printable invoices, wishlists, product reviews, and configurable email/SMS order notifications.
 
 ---
 
@@ -21,8 +22,9 @@ A complete, working full-stack e-commerce web application built using **Node.js*
 | **Backend** | Node.js, Express.js | Modular REST API architecture, controllers, validation & auth middleware |
 | **Database** | SQLite (`sqlite3`) | Normalized relational schema, foreign key enforcement, ACID transactions |
 | **Security** | `bcryptjs`, `jsonwebtoken` (JWT) | Password hashing (10 salt rounds), Bearer token auth, role-based protection |
-| **Image Uploads** | `multer` | Bonus feature: local multipart image file uploads |
+| **Image Uploads** | `multer` | Multipart product image uploads; persistent volume in the Render setup |
 | **Visualization**| `Chart.js` | Interactive sales distribution chart on Admin Dashboard |
+| **Notifications** | `nodemailer`, Twilio REST API | SMTP email and Twilio SMS, with simulated logging when credentials are absent |
 
 ---
 
@@ -41,19 +43,31 @@ npm install
 ```
 
 ### 3. Environment Configuration
-Copy `.env.example` to `.env` (pre-configured with sensible defaults):
+Copy `.env.example` to `.env` (then replace the JWT placeholder with a random secret):
 ```bash
 cp .env.example .env
 ```
 
-`.env` configuration keys:
+`.env` configuration keys (the SMTP and Twilio settings are optional):
 ```env
 PORT=5000
 NODE_ENV=development
-JWT_SECRET=shopeasy_super_secret_jwt_key_2026
+JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRES_IN=7d
 DB_FILE=./shopeasy.db
+UPLOAD_DIR=./public/uploads
+SMTP_HOST=
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_NUMBER=
 ```
+
+Set SMTP credentials to deliver email. Set all three Twilio values and save customer phone numbers in international E.164 format to deliver SMS. Without provider credentials, notifications are logged as simulated messages.
 
 ### 4. Database Setup & Seeding
 Initialize the SQLite database with schemas, 5 categories, 16 products, sample orders, and demo accounts:
@@ -74,6 +88,12 @@ npm run dev
 Visit the application in your browser:
 - **Storefront (Customer/Guest):** [http://localhost:5000](http://localhost:5000)
 - **Admin Dashboard:** [http://localhost:5000/admin/dashboard.html](http://localhost:5000/admin/dashboard.html)
+
+### Cloud deployment on Render
+
+The included `render.yaml` configures a public Node web service, a generated JWT secret, a health check, and a persistent volume for the SQLite database and uploaded images. In Render, create a new Blueprint from this repository and apply the `render.yaml` configuration. Render assigns the service an `onrender.com` URL after the first successful deploy; check `/api/health` on that URL to confirm it is online.
+
+This configuration uses a paid Starter web service because Render does not provide persistent disks to free web services. Keep the disk mounted at `/var/data`; changing the mount or database path can make the deployed app appear to lose its data. Add SMTP/Twilio variables in the Render service settings if you want real email and SMS delivery. Keep credentials out of Git.
 
 ---
 
@@ -135,15 +155,20 @@ ecommerce-project/
 │   │   ├── cart.routes.js
 │   │   ├── order.routes.js
 │   │   ├── admin.routes.js
-│   │   └── wishlist.routes.js
-│   └── controllers/
+│   │   ├── wishlist.routes.js
+│   │   └── coupon.routes.js
+│   ├── controllers/
 │       ├── auth.controller.js
 │       ├── category.controller.js
 │       ├── product.controller.js
 │       ├── cart.controller.js
 │       ├── order.controller.js
 │       ├── admin.controller.js
+│       ├── coupon.controller.js
+│       ├── invoice.controller.js
 │       └── wishlist.controller.js
+│   └── services/
+│       └── notification.service.js
 ├── public/
 │   ├── css/
 │   │   └── style.css        # Custom responsive CSS design system (flexbox/grid)
@@ -155,6 +180,7 @@ ecommerce-project/
 │   │   ├── cart.js          # Cart page, +/- quantity controls with stock check
 │   │   ├── checkout.js      # Checkout form validation & COD placement
 │   │   ├── orders.js        # Customer order history & order cancellation
+│   │   ├── wishlist.js      # Saved products and add-to-cart actions
 │   │   └── profile.js       # Customer profile management
 │   ├── admin/
 │   │   ├── dashboard.html   # Admin stats cards & Chart.js sales chart
@@ -174,10 +200,12 @@ ecommerce-project/
 │   ├── checkout.html        # Checkout screen
 │   ├── success.html         # Order confirmation screen
 │   ├── orders.html          # My Orders screen
+│   ├── wishlist.html        # Saved products
 │   └── profile.html         # Profile screen
 ├── er_diagram.md            # Detailed Mermaid ER Diagram & schema docs
 ├── postman_collection.json  # Complete Postman Collection v2.1
 ├── .env.example
+├── render.yaml              # Render web service and persistent data volume
 ├── .gitignore
 └── package.json
 ```
@@ -229,8 +257,20 @@ ecommerce-project/
 | `GET` | `/api/orders` | Customer | View customer order history |
 | `GET` | `/api/orders/:id` | Customer / Admin | View full order detail and line items |
 | `POST` | `/api/orders/:id/cancel`| Customer | Cancel order if "Placed" (restores product stock) |
+| `GET` | `/api/orders/:id/invoice` | Customer / Admin | View and print an order invoice |
 
-### 6. Admin Panel (`/api/admin`)
+### 6. Wishlist and coupons
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/wishlist` | Authenticated | List saved products |
+| `POST` | `/api/wishlist/:productId` | Authenticated | Add or remove a saved product |
+| `POST` | `/api/coupons/validate` | Authenticated | Check a coupon against the current cart |
+| `GET/POST` | `/api/admin/coupons` | Admin Only | List or create discount coupons |
+| `PATCH` | `/api/admin/coupons/:id/toggle` | Admin Only | Enable or disable a coupon |
+| `DELETE` | `/api/admin/coupons/:id` | Admin Only | Delete a coupon |
+
+### 7. Admin Panel (`/api/admin`)
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | `GET` | `/api/admin/stats` | Admin Only | Dashboard KPI counts, category sales, recent orders |
@@ -286,5 +326,9 @@ ecommerce-project/
 - [x] **Bonus:** Product image file uploads via Multer
 - [x] **Bonus:** Sales chart on Admin Dashboard using Chart.js
 - [x] **Bonus:** Wishlist item toggle and product reviews/ratings
+- [x] **Bonus:** Wishlist page to view and manage saved products
+- [x] **Bonus:** Order invoices, coupons, and discount codes
+- [x] **Bonus:** Configurable SMTP email and Twilio SMS notifications
+- [x] **Bonus:** Render deployment configuration with persistent storage
 - [x] **Bonus:** Complete Postman collection (`postman_collection.json`)
 - [x] **Bonus:** Entity-Relationship diagram (`er_diagram.md`)

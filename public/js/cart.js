@@ -73,9 +73,15 @@ async function loadCart() {
     `).join('');
 
     // Update Summary
+    const gstAmount = cart.grand_total * 0.18;
+    const grandTotalWithGst = cart.grand_total + gstAmount;
     document.getElementById('summary-subtotal').textContent = formatPrice(cart.grand_total);
     document.getElementById('summary-total-items').textContent = cart.total_items;
-    document.getElementById('summary-grand-total').textContent = formatPrice(cart.grand_total);
+    document.getElementById('summary-grand-total').textContent = formatPrice(grandTotalWithGst);
+
+    // Show GST note if element exists
+    const gstNoteEl = document.getElementById('summary-gst');
+    if (gstNoteEl) gstNoteEl.textContent = formatPrice(gstAmount);
 
     // Disable checkout if any item exceeds stock
     const hasInvalidItems = items.some((it) => it.exceeds_stock || !it.is_available);

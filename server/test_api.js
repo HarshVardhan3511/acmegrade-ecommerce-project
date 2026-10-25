@@ -251,7 +251,9 @@ async function runTests() {
     });
     assert(adminOrders.status === 200, 'Admin retrieved all orders (ADM-4)');
 
-    const sampleOrderId = adminOrders.data.orders[0].id;
+    const placedOrder = adminOrders.data.orders.find(order => order.status === 'Placed');
+    assert(placedOrder, 'A placed order is available for fulfillment');
+    const sampleOrderId = placedOrder.id;
     const statusUpdate = await request(`/admin/orders/${sampleOrderId}/status`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${adminToken}` },

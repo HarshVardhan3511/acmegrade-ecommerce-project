@@ -129,9 +129,60 @@ async function viewOrderDetails(orderId) {
           `).join('')}
         </tbody>
       </table>
+      <div style="margin-top:1rem; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-sm); font-size:0.88rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Subtotal</span>
+          <span>${formatPrice(order.subtotal || order.total_amount)}</span>
+        </div>
+        ${order.coupon_code && order.discount_amount > 0 ? `
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem; color:var(--success);">
+          <span>Discount (${escapeHtml(order.coupon_code)})</span>
+          <span>-${formatPrice(order.discount_amount)}</span>
+        </div>` : ''}
+        ${order.gst_amount > 0 ? `
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">GST (18%)</span>
+          <span>${formatPrice(order.gst_amount)}</span>
+        </div>` : ''}
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1rem; border-top:1px solid var(--border); padding-top:0.5rem; margin-top:0.35rem; color:var(--primary);">
+          <span>Total Payable</span>
+          <span>${formatPrice(order.total_amount)}</span>
+        </div>
+      </div>
+      <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button type="button" onclick="openOrderInvoice(${orderId})" class="btn btn-sm btn-primary">
+          🧾 View / Print Invoice
+        </button>
+      </div>
     `;
   } catch (err) {
     detailsDiv.innerHTML = `<p style="color:var(--danger);">Failed to load details: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+async function openOrderInvoice(orderId) {
+  const invoiceWindow = window.open('about:blank', '_blank');
+  if (!invoiceWindow) {
+    showToast('Allow pop-ups to open your invoice.', 'warning');
+    return;
+  }
+  invoiceWindow.opener = null;
+
+  try {
+    const response = await fetch(`/api/orders/${orderId}/invoice`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || 'Could not load the invoice.');
+    }
+
+    const invoiceUrl = URL.createObjectURL(await response.blob());
+    invoiceWindow.location.href = invoiceUrl;
+    setTimeout(() => URL.revokeObjectURL(invoiceUrl), 60_000);
+  } catch (err) {
+    invoiceWindow.close();
+    showToast(err.message || 'Could not load the invoice.', 'danger');
   }
 }
 

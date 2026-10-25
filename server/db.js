@@ -115,6 +115,21 @@ async function initDatabase() {
     console.log('Database schema checked/initialized.');
   }
 
+  // Add gst_amount column to orders if it doesn't exist (migration)
+  await run(`ALTER TABLE orders ADD COLUMN gst_amount REAL NOT NULL DEFAULT 0`).catch(() => {});
+  // Add max_discount column to coupons if it doesn't exist (percentage cap)
+  await run(`ALTER TABLE coupons ADD COLUMN max_discount REAL DEFAULT NULL`).catch(() => {});
+
+  // Seed default coupons (INSERT OR IGNORE so they aren't duplicated)
+  await run(`INSERT OR IGNORE INTO coupons (code, discount_type, discount_value, min_order_amount, max_uses, is_active)
+    VALUES ('SAVE10', 'percentage', 10, 200, 100, 1)`).catch(() => {});
+  await run(`INSERT OR IGNORE INTO coupons (code, discount_type, discount_value, min_order_amount, max_uses, is_active)
+    VALUES ('FLAT50', 'flat', 50, 500, 50, 1)`).catch(() => {});
+  await run(`INSERT OR IGNORE INTO coupons (code, discount_type, discount_value, min_order_amount, max_uses, is_active)
+    VALUES ('NEWUSER20', 'percentage', 20, 0, 1000, 1)`).catch(() => {});
+  await run(`INSERT OR IGNORE INTO coupons (code, discount_type, discount_value, min_order_amount, max_uses, is_active)
+    VALUES ('SUMMER15', 'percentage', 15, 300, 200, 1)`).catch(() => {});
+
   // Check if products exist; if empty, seed automatically
   const countRow = await get('SELECT COUNT(*) as count FROM products');
   if (countRow && countRow.count === 0) {

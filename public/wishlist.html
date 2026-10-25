@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Wishlist – ShopEasy</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">🛍️ Shop<span>Easy</span></a>
+        <div class="nav-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search products..." onkeypress="if(event.key==='Enter') window.location.href='/index.html?search=' + encodeURIComponent(this.value);" />
+        </div>
+        <ul class="nav-links">
+          <li class="nav-item"><a href="/index.html">Catalog</a></li>
+          <li class="nav-item">
+            <a href="/cart.html" class="cart-link" id="cart-nav-link">🛒 Cart <span class="cart-badge" id="nav-cart-badge" style="display:none;">0</span></a>
+          </li>
+          <li class="nav-item" id="nav-auth-container"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      <div style="margin-bottom:1.5rem;">
+        <h1 style="font-size:1.85rem; font-weight:800; color:var(--secondary);">My Wishlist</h1>
+        <p style="color:var(--text-muted);">Products you have saved for later.</p>
+      </div>
+      <div id="wishlist-grid" class="product-grid" aria-live="polite"></div>
+      <div id="wishlist-empty" class="cart-card" style="display:none; text-align:center; padding:3rem 1rem;">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem;">♡</div>
+        <h2 style="margin-bottom:0.5rem;">Your wishlist is empty</h2>
+        <p style="color:var(--text-muted); margin-bottom:1.25rem;">Save products with the heart button and they will appear here.</p>
+        <a href="/index.html" class="btn btn-primary">Browse products</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container"><div class="footer-bottom">&copy; 2026 ShopEasy Application. Full-Stack Internship Capstone Project.</div></div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/wishlist.js"></script>
+</body>
+</html>

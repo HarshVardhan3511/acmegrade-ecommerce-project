@@ -1,6 +1,10 @@
 /**
- * Checkout Logic
+ * Checkout Logic — with Coupon & GST support
  */
+
+const GST_RATE = 0.18;
+let appliedCoupon = null;
+let cartSubtotal = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!isLoggedIn()) {
@@ -34,7 +38,6 @@ function populateUserDetails() {
 async function loadCheckoutSummary() {
   const container = document.getElementById('checkout-items-preview');
   const subtotalEl = document.getElementById('checkout-subtotal');
-  const grandTotalEl = document.getElementById('checkout-grand-total');
 
   try {
     const res = await apiFetch('/cart');
@@ -45,6 +48,8 @@ async function loadCheckoutSummary() {
       setTimeout(() => { window.location.href = '/index.html'; }, 1200);
       return;
     }
+
+    cartSubtotal = res.cart.grand_total;
 
     if (container) {
       container.innerHTML = items.map((item) => `
@@ -61,10 +66,74 @@ async function loadCheckoutSummary() {
       `).join('');
     }
 
-    if (subtotalEl) subtotalEl.textContent = formatPrice(res.cart.grand_total);
-    if (grandTotalEl) grandTotalEl.textContent = formatPrice(res.cart.grand_total);
+    if (subtotalEl) subtotalEl.textContent = formatPrice(cartSubtotal);
+    updateOrderTotals();
   } catch (err) {
     showToast('Failed to load cart summary for checkout.', 'danger');
+  }
+}
+
+function updateOrderTotals() {
+  const discountAmount = appliedCoupon ? appliedCoupon.discount_amount : 0;
+  const taxableAmount = cartSubtotal - discountAmount;
+  const gstAmount = taxableAmount * GST_RATE;
+  const grandTotal = taxableAmount + gstAmount;
+
+  const grandTotalEl = document.getElementById('checkout-grand-total');
+  const gstEl = document.getElementById('checkout-gst');
+  const discountEl = document.getElementById('checkout-discount');
+  const discountRow = document.getElementById('discount-row');
+  const appliedCodeEl = document.getElementById('applied-coupon-code');
+
+  if (gstEl) gstEl.textContent = formatPrice(gstAmount);
+  if (grandTotalEl) grandTotalEl.textContent = formatPrice(grandTotal);
+
+  if (appliedCoupon && discountAmount > 0) {
+    if (discountRow) discountRow.style.display = 'flex';
+    if (discountEl) discountEl.textContent = `-${formatPrice(discountAmount)}`;
+    if (appliedCodeEl) appliedCodeEl.textContent = appliedCoupon.code;
+  } else {
+    if (discountRow) discountRow.style.display = 'none';
+  }
+}
+
+async function applyCoupon() {
+  const couponInput = document.getElementById('coupon-input');
+  const couponMessage = document.getElementById('coupon-message');
+  const code = couponInput ? couponInput.value.trim() : '';
+
+  if (!code) {
+    if (couponMessage) {
+      couponMessage.textContent = 'Please enter a coupon code.';
+      couponMessage.style.color = 'var(--danger)';
+    }
+    return;
+  }
+
+  const applyBtn = document.getElementById('apply-coupon-btn');
+  if (applyBtn) applyBtn.disabled = true;
+
+  try {
+    const res = await apiFetch('/coupons/validate', {
+      method: 'POST',
+      body: { code, cart_total: cartSubtotal },
+    });
+
+    appliedCoupon = res.coupon;
+    if (couponMessage) {
+      couponMessage.textContent = res.message;
+      couponMessage.style.color = 'var(--success)';
+    }
+    updateOrderTotals();
+  } catch (err) {
+    appliedCoupon = null;
+    if (couponMessage) {
+      couponMessage.textContent = err.message || 'Invalid coupon code.';
+      couponMessage.style.color = 'var(--danger)';
+    }
+    updateOrderTotals();
+  } finally {
+    if (applyBtn) applyBtn.disabled = false;
   }
 }
 
@@ -114,15 +183,21 @@ function setupCheckoutForm() {
     submitBtn.innerHTML = 'Placing Order...';
 
     try {
+      const body = {
+        shipping_name: name,
+        shipping_phone: phone,
+        shipping_address: address,
+        shipping_city: city,
+        shipping_pincode: pincode,
+      };
+
+      if (appliedCoupon) {
+        body.coupon_code = appliedCoupon.code;
+      }
+
       const res = await apiFetch('/orders', {
         method: 'POST',
-        body: {
-          shipping_name: name,
-          shipping_phone: phone,
-          shipping_address: address,
-          shipping_city: city,
-          shipping_pincode: pincode,
-        },
+        body,
       });
 
       showToast(res.message || 'Order placed successfully!', 'success');

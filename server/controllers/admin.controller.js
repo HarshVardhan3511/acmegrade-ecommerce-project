@@ -1,4 +1,5 @@
-const { all, get, run } = require('../db');
+const { all, get, run, transaction } = require('../db');
+const { notifyOrderStatusUpdate } = require('../services/notification.service');
 
 /**
  * Get Admin Dashboard Statistics
@@ -32,7 +33,7 @@ async function getDashboardStats(req, res) {
     const categorySales = await all(`
       SELECT 
         c.name as category,
-        COALESCE(SUM(oi.quantity * oi.unit_price), 0) as sales
+        COALESCE(SUM(CASE WHEN o.id IS NOT NULL THEN oi.quantity * oi.unit_price ELSE 0 END), 0) as sales
       FROM categories c
       LEFT JOIN products p ON p.category_id = c.id
       LEFT JOIN order_items oi ON oi.product_id = p.id
@@ -158,36 +159,64 @@ async function updateOrderStatus(req, res) {
       });
     }
 
-    const order = await get('SELECT * FROM orders WHERE id = ?', [id]);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found.',
-      });
-    }
-
-    // If order was placed and is now cancelled by admin, restore stock
-    if (order.status !== 'Cancelled' && status === 'Cancelled') {
-      const items = await all('SELECT product_id, quantity FROM order_items WHERE order_id = ?', [id]);
-      for (const item of items) {
-        await run('UPDATE products SET stock = stock + ? WHERE id = ?', [item.quantity, item.product_id]);
+    const transition = await transaction(async (tx) => {
+      const order = await tx.get('SELECT * FROM orders WHERE id = ?', [id]);
+      if (!order) {
+        const err = new Error('Order not found.');
+        err.statusCode = 404;
+        throw err;
       }
+
+      const allowedTransitions = {
+        Placed: ['Placed', 'Shipped', 'Cancelled'],
+        Shipped: ['Shipped', 'Delivered'],
+        Delivered: ['Delivered'],
+        Cancelled: ['Cancelled'],
+      };
+      if (!allowedTransitions[order.status]?.includes(status)) {
+        const err = new Error(`Order cannot move from "${order.status}" to "${status}".`);
+        err.statusCode = 400;
+        throw err;
+      }
+
+      if (order.status !== status) {
+        if (status === 'Cancelled') {
+          const items = await tx.all('SELECT product_id, quantity FROM order_items WHERE order_id = ?', [id]);
+          for (const item of items) {
+            await tx.run('UPDATE products SET stock = stock + ? WHERE id = ?', [item.quantity, item.product_id]);
+          }
+          if (order.coupon_code) {
+            await tx.run(
+              'UPDATE coupons SET used_count = MAX(0, used_count - 1) WHERE code = ? COLLATE NOCASE',
+              [order.coupon_code]
+            );
+          }
+        }
+        await tx.run('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+      }
+
+      return { changed: order.status !== status, order: await tx.get('SELECT * FROM orders WHERE id = ?', [id]) };
+    });
+
+    // Send status update notification after the order transition commits.
+    if (transition.changed && ['Shipped', 'Delivered', 'Cancelled'].includes(status)) {
+      get('SELECT * FROM users WHERE id = ?', [transition.order.user_id]).then((user) => {
+        if (user) notifyOrderStatusUpdate(user, transition.order, status).catch(console.error);
+      }).catch(console.error);
     }
-
-    await run('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
-
-    const updated = await get('SELECT * FROM orders WHERE id = ?', [id]);
 
     return res.status(200).json({
       success: true,
-      message: `Order #${id} status updated to "${status}".`,
-      order: updated,
+      message: transition.changed
+        ? `Order #${id} status updated to "${status}".`
+        : `Order #${id} is already "${status}".`,
+      order: transition.order,
     });
   } catch (err) {
     console.error('Update order status error:', err);
-    return res.status(500).json({
+    return res.status(err.statusCode || 500).json({
       success: false,
-      message: 'Failed to update order status.',
+      message: err.message || 'Failed to update order status.',
     });
   }
 }
@@ -219,9 +248,30 @@ async function getLowStockProducts(req, res) {
   }
 }
 
+/**
+ * Get notification logs (Admin only)
+ * GET /api/admin/notifications
+ */
+async function getNotificationLogs(req, res) {
+  try {
+    const logs = await all(`
+      SELECT n.*, u.name as user_name, u.email as user_email
+      FROM notifications n
+      JOIN users u ON n.user_id = u.id
+      ORDER BY n.sent_at DESC
+      LIMIT 100
+    `);
+    return res.status(200).json({ success: true, notifications: logs });
+  } catch (err) {
+    console.error('Get notifications error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve notifications.' });
+  }
+}
+
 module.exports = {
   getDashboardStats,
   getAllOrders,
   updateOrderStatus,
   getLowStockProducts,
+  getNotificationLogs,
 };
